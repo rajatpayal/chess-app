@@ -1,24 +1,30 @@
-import logo from './logo.svg';
 import './App.css';
+import React from 'react';
+import { useState } from 'react';
+import io from 'socket.io-client';
+import { BrowserRouter as Router, Route,Routes} from 'react-router-dom';
+import Home from './ui/home';
+import Game from './ui/game';
+import StartingPage from './ui/startingPage';
+
+
+
+// socket.emit('dummyMessage','hello are we connected');
+
+const socket = io('http://localhost:4000');
 
 function App() {
+  
+  const [currentUserId, setCurrentUserId] = useState(null);
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<StartingPage socket={socket} setCurrentUserId={setCurrentUserId}/>} />
+        <Route path="/home" element={<Home socket={socket} currentUserId={currentUserId} />} />
+        <Route path="/game" element={<Game socket={socket}/>} />
+      </Routes>
+    </Router>
   );
 }
 
