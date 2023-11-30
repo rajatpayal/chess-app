@@ -1,0 +1,9 @@
+.game-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    background-color: rgb(32, 69, 74); /* Example background color */
+    /* background-image: url('path-to-your-background-image.jpg'); */
+    /* Add other styling as needed */
+}

@@ -16,16 +16,16 @@ function Home({socket,currentUserId}) {
 
     useEffect(() => {
       socket.on('joinGameRoom', (gameId) => {
-        console.log(gameId);
+        // console.log(gameId);
 
         socket.emit('joinRoom', gameId);
         navigate(`/game/${gameId}`);
       });
 
-      socket.on('startGame', (gameUrl) => {
-        console.log('dsfsdfsdfsfdsfddfsfdsferferf');
-        navigate(gameUrl);
-    });
+    //   socket.on('startGame', (gameUrl) => {
+    //     console.log('dsfsdfsdfsfdsfddfsfdsferferf');
+    //     navigate(gameUrl);
+    // });
 
 
 
@@ -66,8 +66,8 @@ function Home({socket,currentUserId}) {
     const handleNotificationCallback = (notification) => (action) => {
       if (action === 'Yes') {
         
-        console.log(notification);
-        socket.emit('acceptInvitation', { gameId: notification.gameId, opponentSocketId: notification.from });
+        console.log(notification.from);
+        socket.emit('acceptInvitation', { gameId: notification.gameId, invitingPlayerId: notification.from });
 
         
 
