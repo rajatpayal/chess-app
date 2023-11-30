@@ -1,7 +1,8 @@
 import React, { useState,useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate ,Link } from 'react-router-dom';
 import './home.css';
 import GameInvitationModal from './gameInvitation';
+import { v4 as uuidv4 } from "uuid";
 
 function Home({socket,currentUserId}) {
 
@@ -11,7 +12,23 @@ function Home({socket,currentUserId}) {
   
     const [searchPlayer, setSearchPlayer] = useState('');
 
+    const navigate = useNavigate();
+
     useEffect(() => {
+      socket.on('joinGameRoom', (gameId) => {
+        console.log(gameId);
+
+        socket.emit('joinRoom', gameId);
+        navigate(`/game/${gameId}`);
+      });
+
+      socket.on('startGame', (gameUrl) => {
+        console.log('dsfsdfsdfsfdsfddfsfdsferferf');
+        navigate(gameUrl);
+    });
+
+
+
       socket.on('updatePlayers', (updatedPlayers) => {
         // console.log(updatedPlayers.id);  
         setPlayers(updatedPlayers);
@@ -21,6 +38,8 @@ function Home({socket,currentUserId}) {
         setNotifications([...notifications, 
             {action:['Yes', 'No'],
             message: 'Do you want to play with Golli?',
+            from: invitation.from,
+            gameId: invitation.gameId,
             referenceId: 'fsrwwef',
             notificationType: 'GameReq'
           }
@@ -28,17 +47,33 @@ function Home({socket,currentUserId}) {
       });
 
       console.log(socket.id);
-    
-      return () => socket.off('gameInvitation');
 
-    }, [socket]);
+    
+      return () =>{
+                  socket.off('gameInvitation');
+                  socket.off('updatePlayers');
+                  socket.off('startGame');
+                  }
+
+    }, [socket,navigate]);
 
     const handlePlayClick = (playerUuid) => {
-        socket.emit('playRequest',playerUuid)
+      const gameId  = uuidv4();
+        socket.emit('playRequest',{ from: currentUserId, to: playerUuid,gameId })
         console.log(`Play button clicked for player: ${playerUuid}`);
     };
 
     const handleNotificationCallback = (notification) => (action) => {
+      if (action === 'Yes') {
+        
+        console.log(notification);
+        socket.emit('acceptInvitation', { gameId: notification.gameId, opponentSocketId: notification.from });
+
+        
+
+        navigate(`/game/${notification.gameId}`);
+
+      }
       console.log(`${action} taken for ${notification.referenceId}`)      
     }
     
