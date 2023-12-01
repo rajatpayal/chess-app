@@ -12,7 +12,7 @@ import StartingPage from './ui/startingPage';
 
 // socket.emit('dummyMessage','hello are we connected');
 
-const socket = io('http://localhost:5000');
+const socket = io('http://192.168.1.10:5000');
 
 function App() {
   

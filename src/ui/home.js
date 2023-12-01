@@ -30,7 +30,7 @@ function Home({socket,currentUserId}) {
 
 
       socket.on('updatePlayers', (updatedPlayers) => {
-        // console.log(updatedPlayers.id);  
+         console.log(updatedPlayers);  
         setPlayers(updatedPlayers);
       });
       socket.on('gameInvitation', (invitation) => {
