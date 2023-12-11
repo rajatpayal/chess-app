@@ -3,6 +3,7 @@ import { useNavigate ,Link } from 'react-router-dom';
 import './home.css';
 import GameInvitationModal from './gameInvitation';
 import { v4 as uuidv4 } from "uuid";
+import Header from '../components/headers/header';
 
 function Home({socket,currentUserId}) {
 
@@ -15,6 +16,21 @@ function Home({socket,currentUserId}) {
     const navigate = useNavigate();
 
     useEffect(() => {
+      
+      const fetchPlayers = async () =>{
+        try{
+          
+          const response = await fetch(`http://localhost:5000/api/users/players?userId=${currentUserId}`);
+          if(!response.ok) throw new console.error('response is not ok');
+          const data = await response.json();
+          setPlayers(data);
+        }
+        catch(error){
+          console.log('fetch error:',error);
+        }
+      }
+
+      fetchPlayers(); 
       socket.on('joinGameRoom', (gameId) => {
         // console.log(gameId);
 
@@ -31,7 +47,7 @@ function Home({socket,currentUserId}) {
 
       socket.on('updatePlayers', (updatedPlayers) => {
          console.log(updatedPlayers);  
-        setPlayers(updatedPlayers);
+        // setPlayers(updatedPlayers);
       });
       socket.on('gameInvitation', (invitation) => {
         console.log('Game invitation received:', invitation);
@@ -59,6 +75,7 @@ function Home({socket,currentUserId}) {
 
     const handlePlayClick = (playerUuid) => {
       const gameId  = uuidv4();
+      
         socket.emit('playRequest',{ from: currentUserId, to: playerUuid,gameId })
         console.log(`Play button clicked for player: ${playerUuid}`);
     };
@@ -80,35 +97,38 @@ function Home({socket,currentUserId}) {
   
 
   return (
-    <div className="players-container">
-      {
-        notifications.map((notification) => {
-          return <GameInvitationModal key={notification.referenceId} notification={notification} callback={handleNotificationCallback(notification)} />
-      })
-    }
-    <div className="search-bar">
-      <input
-        type="text"
-        placeholder="Search players..."
-        value={searchPlayer}
-        onChange={(e) => setSearchPlayer(e.target.value)}
-      />
-    </div>
-    <h3 className='list-heading'>Recently online player :</h3>
-    <ul className="players-list">
-      {players.filter(player => player.id !== currentUserId)
-     .map(player => (
-          <li key={player.id}>
-            {player.name}
-            <button className="play-button" onClick={() => handlePlayClick(player.id)}>
-              <Link className='link-button' to="/game">Play</Link>
-            </button>
-          </li>
-     
-     ))}
-    </ul>
+    <div>
+        <Header/>
+        <div className="players-container">
+        {
+          notifications.map((notification) => {
+            return <GameInvitationModal key={notification.referenceId} notification={notification} callback={handleNotificationCallback(notification)} />
+        })
+      }
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search players..."
+          value={searchPlayer}
+          onChange={(e) => setSearchPlayer(e.target.value)}
+        />
+      </div>
+      <h3 className='list-heading'>Recently online player :</h3>
+      <ul className="players-list">
+        {players.map(player => (
+            <li key={player.username}>
+              {player.username}
+              <button className="play-button" onClick={() => handlePlayClick(player.id)}>
+                <Link className='link-button' to="/game">Play</Link>
+              </button>
+            </li>
+      
+      ))}
+      </ul>
 
+    </div>
   </div>
+    
   );
 }
 

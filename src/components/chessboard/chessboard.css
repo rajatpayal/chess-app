@@ -1,0 +1,8 @@
+#chessboard {  
+    display: flex;
+    justify-content:center ;
+    align-content: center;
+    max-width: 500px;
+    height: 500px;
+    /* You might need specific styling based on the chessboard library you use */
+}
