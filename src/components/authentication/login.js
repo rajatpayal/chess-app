@@ -1,24 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './login.css';
 import { useNavigate} from 'react-router-dom';
 import Header from '../headers/header';
 import { useDispatch } from 'react-redux';  
 
-function Login() {
+function Login({socket}) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const [player,setPlayer]= useState({});
 
+    
+    //console.log(socket);
 
     const handleRegister = () =>{
         navigate('/register')
     }
-
+    
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await fetch('http://localhost:5000/api/users/login', {
+            const response = await fetch('http://192.168.1.9:5000/api/users/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -27,9 +30,11 @@ function Login() {
             });
             const data = await response.json();
             
-            
+            // debugger;
             if (data.token) {
-                
+                console.log(socket.id);
+                socket.emit('addPlayer',data.token);
+                setPlayer(data);
                 console.log('Login successful');
                     dispatch({
                         type: 'SET_CURRENT_USER',
@@ -46,6 +51,7 @@ function Login() {
             console.error('Login error', error);
         }
     };
+    
     // const handleLoginCLick = () =>{
     //     // In your login action
         
@@ -77,7 +83,7 @@ function Login() {
                             required
                         />
                     </div>
-                    <button type="submit" className="login-button" onClick={handleSubmit}>Login</button>
+                    <button type="submit" className="login-button" on onSubmit={handleSubmit} >Login</button>
                 </form>
 
                 <button onClick={handleRegister}>dont have an account?</button>

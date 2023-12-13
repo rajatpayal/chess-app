@@ -11,7 +11,11 @@ export default function userReducer(state = initialState, action) {
                 ...state,
                 currentUser: action.payload
             };
-        // handle other actions
+        case 'SET_CURRENT_GAME':
+            return{
+                ...state,
+                gameData: action.payload
+            }
         default:
             return state;
     }

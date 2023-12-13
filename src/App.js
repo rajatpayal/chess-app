@@ -16,7 +16,7 @@ import { useSelector } from 'react-redux';
 
 // socket.emit('dummyMessage','hello are we connected');
 
-const socket = io('http://localhost:5000');
+const socket = io('http://192.168.1.9:5000');
 
 function App() {
   
@@ -25,6 +25,10 @@ function App() {
   const currentUserId = useSelector((state) => 
     state.user.currentUser
   );
+  const currentGameData = useSelector((state) =>
+    state.user.gameData
+  )
+  console.log(currentGameData);
 
   
   
@@ -33,10 +37,10 @@ function App() {
       <Routes>
         <Route path="/" element={<FirstPage/>} />
         <Route path="/register" element={<Register/>} />
-        <Route path="/login" element={<Login/>} />
+        <Route path="/login" element={<Login socket={socket}/>} />
         <Route path="/start" element={<StartingPage socket={socket}/>} />
         <Route path="/home" element={<Home socket={socket} currentUserId={currentUserId}  />} />
-        <Route path="/game/:gameId" element={<Game socket={socket}/>} />
+        <Route path="/game/:gameId" element={<Game socket={socket} currentGameData={currentGameData}/>} />
       </Routes>
     </Router>
   );

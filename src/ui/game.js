@@ -5,7 +5,7 @@ import GameResultModal from './gameResultModal';
 import Chess from 'chess.js';
 import './game.css'; 
 
-function Game({ socket }) {
+function Game({ socket,currentGameData }) {
     const [game, setGame] = useState(new Chess());
     const [fen, setFen] = useState("start");
     const [orientation, setOrientation] = useState('white');
@@ -33,19 +33,23 @@ function Game({ socket }) {
     }
 
     useEffect(() => {
-        socket.on('startGame', ({ gameId, playerRoles,playerNames }) => {
-            if (socket.id === playerRoles.white) {
-                setPlayerId(playerRoles.white)
-                setOrientation('white');
-            } else if (socket.id === playerRoles.black) {
-                setPlayerId(playerRoles.black)
-                setOrientation('black');
-            }
-            
-            SetInviterName(playerNames.white);
-            SetInviteeName(playerNames.black);
-            // navigate(`/game/${gameId}`);
-        });
+        console.log(currentGameData)
+        const playerRoles = currentGameData.playerRoles;
+        const playerNames = currentGameData.playerNames;
+          
+        if (socket.id === playerRoles.white) {
+          console.log(playerRoles.white);
+            setPlayerId(playerRoles.white)
+            setOrientation('white');
+        } else if (socket.id === playerRoles.black) {
+          console.log(playerRoles.black);
+            setPlayerId(playerRoles.black)
+            setOrientation('black');
+        }
+        
+        SetInviterName(playerNames.white);
+        SetInviteeName(playerNames.black);
+      
 
         socket.on('gameUpdate', ({ fen, isInCheck ,isCheckmate, isDraw}) => {
           const updatedGame = new Chess(fen);
@@ -116,7 +120,7 @@ function Game({ socket }) {
                     customSquareStyles={squareStyles}
                     showBoardNotation
                     snapToCursor
-                    boardWidth={300}
+                    boardWidth={360}
                     position={fen}
                     boardOrientation={orientation}
                     onPieceDrop={(sourceSquare, targetSquare) => handleMove({

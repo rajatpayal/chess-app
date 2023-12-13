@@ -4,6 +4,7 @@ import './home.css';
 import GameInvitationModal from './gameInvitation';
 import { v4 as uuidv4 } from "uuid";
 import Header from '../components/headers/header';
+import { useDispatch } from 'react-redux'; 
 
 function Home({socket,currentUserId}) {
 
@@ -13,9 +14,26 @@ function Home({socket,currentUserId}) {
   
     const [searchPlayer, setSearchPlayer] = useState('');
 
+    const [opponentPlayerId, setOpponentPlayerId] = useState('');
+    const dispatch = useDispatch();
+
     const navigate = useNavigate();
 
     useEffect(() => {
+      
+      socket.emit('reconnect',{userId:currentUserId});
+      
+
+      socket.on('joinGameRoom', (data) => {
+        debugger;
+        
+        dispatch({
+          type: 'SET_CURRENT_GAME',
+          payload: data// userData contains the user's information
+        });
+        localStorage.setItem('currentGameData', data);
+        navigate(`/game/${data.gameId}`);
+      });
       
       const fetchPlayers = async () =>{
         try{
@@ -24,6 +42,7 @@ function Home({socket,currentUserId}) {
           if(!response.ok) throw new console.error('response is not ok');
           const data = await response.json();
           setPlayers(data);
+          
         }
         catch(error){
           console.log('fetch error:',error);
@@ -31,24 +50,7 @@ function Home({socket,currentUserId}) {
       }
 
       fetchPlayers(); 
-      socket.on('joinGameRoom', (gameId) => {
-        // console.log(gameId);
 
-        socket.emit('joinRoom', gameId);
-        navigate(`/game/${gameId}`);
-      });
-
-    //   socket.on('startGame', (gameUrl) => {
-    //     console.log('dsfsdfsdfsfdsfddfsfdsferferf');
-    //     navigate(gameUrl);
-    // });
-
-
-
-      socket.on('updatePlayers', (updatedPlayers) => {
-         console.log(updatedPlayers);  
-        // setPlayers(updatedPlayers);
-      });
       socket.on('gameInvitation', (invitation) => {
         console.log('Game invitation received:', invitation);
         setNotifications([...notifications, 
@@ -62,9 +64,6 @@ function Home({socket,currentUserId}) {
         ]);
       });
 
-      console.log(socket.id);
-
-    
       return () =>{
                   socket.off('gameInvitation');
                   socket.off('updatePlayers');
@@ -74,8 +73,8 @@ function Home({socket,currentUserId}) {
     }, [socket,navigate]);
 
     const handlePlayClick = (playerUuid) => {
-      const gameId  = uuidv4();
-      
+        const gameId  = uuidv4();
+
         socket.emit('playRequest',{ from: currentUserId, to: playerUuid,gameId })
         console.log(`Play button clicked for player: ${playerUuid}`);
     };
@@ -84,11 +83,13 @@ function Home({socket,currentUserId}) {
       if (action === 'Yes') {
         
         console.log(notification.from);
-        socket.emit('acceptInvitation', { gameId: notification.gameId, invitingPlayerId: notification.from });
+        socket.emit('acceptInvitation', { gameId: notification.gameId,
+           invitingPlayerId: notification.from});
 
         
+        // navigate(`/game/${notification.gameId}`);
 
-        navigate(`/game/${notification.gameId}`);
+        
 
       }
       console.log(`${action} taken for ${notification.referenceId}`)      
@@ -118,7 +119,7 @@ function Home({socket,currentUserId}) {
         {players.map(player => (
             <li key={player.username}>
               {player.username}
-              <button className="play-button" onClick={() => handlePlayClick(player.id)}>
+              <button className="play-button" onClick={() => handlePlayClick(player.userId)}>
                 <Link className='link-button' to="/game">Play</Link>
               </button>
             </li>

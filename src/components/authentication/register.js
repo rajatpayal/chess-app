@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './register.css'; // Make sure to create a corresponding CSS file
 import { useNavigate} from 'react-router-dom';
 import Header from '../headers/header';
+const { v4: uuidv4 } = require('uuid');
 
 
 
@@ -10,16 +11,18 @@ function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
+    
 
     const handleSubmit = async (event) => {
+        const userId = uuidv4();
         event.preventDefault();
         try {
-            const response = await fetch('http://localhost:5000/api/users/register', {
+            const response = await fetch('http://192.168.1.9:5000/api/users/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, email, password }),
+                body: JSON.stringify({ userId,username, email, password }),
             });
             const data = await response.json();
             if (data.token) {
@@ -69,7 +72,7 @@ function Register() {
                         required
                     />
                 </div>
-                <button type="submit" className="register-button">Register</button>
+                <button type="submit" className="register-button" onClick={handleSubmit}>Register</button>
             </form>
         </div>
             

@@ -18,7 +18,7 @@ function StartingPage({socket,setCurrentUserId }) {
       }
       setError('');
     const userId = uuidv4();
-    socket.emit('addPlayer',{userId,name}); 
+    // socket.emit('addPlayer',{userId,name}); 
     setCurrentUserId(userId); 
     setName('');
     console.log(userId);
